@@ -2,7 +2,7 @@
 
 namespace Blog\Model;
 
-interface PostCommandInteface
+interface PostCommandInterface
 {
     /**
      * Persist a new post in the system.
