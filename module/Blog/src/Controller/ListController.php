@@ -19,7 +19,7 @@ class ListController extends AbstractActionController
         $this->postRepository = $postRepository;
     }
 
-    public function indexAction()
+    public function indexAction(): ViewModel
     {
         return new ViewModel([
             'posts' => $this->postRepository->findAllPosts(),

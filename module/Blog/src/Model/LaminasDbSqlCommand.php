@@ -4,8 +4,10 @@ namespace Blog\Model;
 
 use Laminas\Db\Adapter\AdapterInterface;
 use Laminas\Db\Adapter\Driver\ResultInterface;
+use Laminas\Db\Sql\Delete;
 use Laminas\Db\Sql\Insert;
 use Laminas\Db\Sql\Sql;
+use Laminas\Db\Sql\Update;
 use RuntimeException;
 
 class LaminasDbSqlCommand implements PostCommandInterface
@@ -56,14 +58,52 @@ class LaminasDbSqlCommand implements PostCommandInterface
     /**
      * {@inheritDoc}
      */
-    public function updatePost(Post $post)
+    public function updatePost(Post $post): Post
     {
+        if (! $post->getId()) {
+            throw new RuntimeException('Cannot update post; missing identifier');
+        }
+
+        $update = new Update('posts');
+        $update->set([
+            'title' => $post->getTitle(),
+            'text' => $post->getText(),
+        ]);
+        $update->where(['id = ?' => $post->getId()]);
+
+        $sql = new Sql($this->db);
+        $statement = $sql->prepareStatementForSqlObject($update);
+        $result = $statement->execute();
+
+        if (! $result instanceof ResultInterface) {
+            throw new RuntimeException(
+                'Database error occurred during blog post update operation'
+            );
+        }
+
+        return $post;
     }
 
     /**
      * {@inheritDoc}
      */
-    public function deletePost(Post $post)
+    public function deletePost(Post $post): bool
     {
+        if (! $post->getId()) {
+            throw new RuntimeException('Cannot delete post; missing identifier');
+        }
+
+        $delete = new Delete('posts');
+        $delete->where(['id = ?' => $post->getId()]);
+
+        $sql = new Sql($this->db);
+        $statement = $sql->prepareStatementForSqlObject($delete);
+        $result = $statement->execute();
+
+        if (! $result instanceof ResultInterface) {
+            return false;
+        }
+
+        return true;
     }
 }

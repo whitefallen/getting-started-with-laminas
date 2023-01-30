@@ -52,7 +52,10 @@ RUN apt-get install --yes libicu-dev \
 ###
 ## laminas/laminas-cache supported extensions
 ###
-
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug \
+    && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "xdebug.client_host = host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
 ## APCU
 # RUN pecl install apcu \
 #     && docker-php-ext-enable apcu
